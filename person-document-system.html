@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人员与证件自由录入系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass {
+                background: rgba(255, 255, 255, 0.25);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+            }
+            .glass-dark {
+                background: rgba(30, 41, 59, 0.75);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 顶部搜索栏和添加按钮 -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">人员与证件自由录入系统</h1>
+            <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                <div class="relative w-full sm:w-64">
+                    <input type="text" id="searchInput" placeholder="搜索人员或证件..." 
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <i class="fa fa-search absolute right-3 top-3 text-gray-400"></i>
+                </div>
+                <button id="addPersonBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
+                    <i class="fa fa-plus mr-2"></i> 添加人员
+                </button>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- 左侧人员列表 -->
+            <div class="lg:w-1/3">
+                <div class="glass rounded-xl p-4 shadow-glass">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">人员列表</h2>
+                    <div id="personList" class="space-y-3 max-h-[600px] overflow-y-auto">
+                        <!-- 人员卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧人员详情和证件管理 -->
+            <div class="lg:w-2/3">
+                <div id="personDetail" class="glass rounded-xl p-6 shadow-glass hidden">
+                    <!-- 人员详情将通过JS动态生成 -->
+                </div>
+                <div id="noSelection" class="glass rounded-xl p-12 shadow-glass flex flex-col items-center justify-center">
+                    <i class="fa fa-user-circle text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-500">请从左侧选择一个人员查看详情</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑人员模态框 -->
+    <div id="personModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glass rounded-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="personModalTitle" class="text-xl font-semibold text-gray-800">添加人员</h3>
+                <button id="closePersonModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="personForm">
+                <input type="hidden" id="personId">
+                <div class="mb-4">
+                    <label for="personName" class="block text-sm font-medium text-gray-700 mb-1">姓名 *</label>
+                    <input type="text" id="personName" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                </div>
+                <div class="mb-4">
+                    <label for="personIdNumber" class="block text-sm font-medium text-gray-700 mb-1">身份证号 *</label>
+                    <input type="text" id="personIdNumber" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                </div>
+                <div class="mb-6">
+                    <label for="personRemark" class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                    <textarea id="personRemark" rows="2" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="cancelPersonBtn" class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100">取消</button>
+                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加/编辑证件模态框 -->
+    <div id="documentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glass rounded-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="documentModalTitle" class="text-xl font-semibold text-gray-800">添加证件</h3>
+                <button id="closeDocumentModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="documentForm">
+                <input type="hidden" id="documentId">
+                <input type="hidden" id="currentPersonId">
+                <div class="mb-4">
+                    <label for="documentName" class="block text-sm font-medium text-gray-700 mb-1">证件名称 *</label>
+                    <input type="text" id="documentName" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                </div>
+                <div class="mb-4">
+                    <label for="documentNumber" class="block text-sm font-medium text-gray-700 mb-1">证件号码 *</label>
+                    <input type="text" id="documentNumber" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">证件附件</label>
+                    <div class="flex items-center gap-4">
+                        <input type="file" id="documentImage" accept="image/*" class="hidden" onchange="previewImage(this)">
+                        <label for="documentImage" class="px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100">
+                            <i class="fa fa-upload mr-2"></i> 选择图片
+                        </label>
+                        <div id="imagePreview" class="hidden">
+                            <img id="previewImg" src="" alt="预览" class="w-16 h-16 object-cover rounded-lg">
+                        </div>
+                        <button type="button" id="removeImageBtn" class="text-red-500 hover:text-red-700 hidden">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="cancelDocumentBtn" class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100">取消</button>
+                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let persons = [];
+        let currentPerson = null;
+        let searchQuery = '';
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            renderPersonList();
+            bindEvents();
+        });
+
+        // 加载数据
+        function loadData() {
+            const storedPersons = localStorage.getItem('persons');
+            if (storedPersons) {
+                persons = JSON.parse(storedPersons);
+            }
+        }
+
+        // 保存数据
+        function saveData() {
+            localStorage.setItem('persons', JSON.stringify(persons));
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 添加人员按钮
+            document.getElementById('addPersonBtn').addEventListener('click', function() {
+                openPersonModal();
+            });
+
+            // 搜索框
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                searchQuery = e.target.value.toLowerCase();
+                renderPersonList();
+            });
+
+            // 人员模态框
+            document.getElementById('closePersonModal').addEventListener('click', closePersonModal);
+            document.getElementById('cancelPersonBtn').addEventListener('click', closePersonModal);
+            document.getElementById('personForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                savePerson();
+            });
+
+            // 证件模态框
+            document.getElementById('closeDocumentModal').addEventListener('click', closeDocumentModal);
+            document.getElementById('cancelDocumentBtn').addEventListener('click', closeDocumentModal);
+            document.getElementById('documentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveDocument();
+            });
+
+            // 删除图片按钮
+            document.getElementById('removeImageBtn').addEventListener('click', function() {
+                document.getElementById('documentImage').value = '';
+                document.getElementById('imagePreview').classList.add('hidden');
+                this.classList.add('hidden');
+            });
+        }
+
+        // 渲染人员列表
+        function renderPersonList() {
+            const personList = document.getElementById('personList');
+            personList.innerHTML = '';
+
+            const filteredPersons = persons.filter(person => {
+                if (!searchQuery) return true;
+                
+                // 搜索姓名和身份证号
+                if (person.name.toLowerCase().includes(searchQuery) || 
+                    person.idNumber.toLowerCase().includes(searchQuery)) {
+                    return true;
+                }
+                
+                // 搜索证件
+                return person.documents.some(doc => {
+                    return doc.docName.toLowerCase().includes(searchQuery) || 
+                           doc.docNumber.toLowerCase().includes(searchQuery);
+                });
+            });
+
+            if (filteredPersons.length === 0) {
+                personList.innerHTML = '<p class="text-gray-500 text-center py-4">暂无人员</p>';
+                return;
+            }
+
+            filteredPersons.forEach(person => {
+                const personCard = document.createElement('div');
+                personCard.className = `p-4 rounded-lg cursor-pointer transition-all ${currentPerson && currentPerson.id === person.id ? 'bg-primary text-white' : 'bg-white hover:bg-gray-50'}`;
+                personCard.innerHTML = `
+                    <div class="font-medium">${person.name}</div>
+                    <div class="text-sm ${currentPerson && currentPerson.id === person.id ? 'text-white/80' : 'text-gray-500'}">${person.idNumber}</div>
+                    <div class="text-xs mt-1 ${currentPerson && currentPerson.id === person.id ? 'text-white/60' : 'text-gray-400'}">证件数: ${person.documents.length}</div>
+                `;
+                personCard.addEventListener('click', function() {
+                    selectPerson(person.id);
+                });
+                personList.appendChild(personCard);
+            });
+        }
+
+        // 选择人员
+        function selectPerson(personId) {
+            currentPerson = persons.find(person => person.id === personId);
+            if (currentPerson) {
+                document.getElementById('noSelection').classList.add('hidden');
+                document.getElementById('personDetail').classList.remove('hidden');
+                renderPersonDetail();
+                renderPersonList();
+            }
+        }
+
+        // 渲染人员详情
+        function renderPersonDetail() {
+            const personDetail = document.getElementById('personDetail');
+            personDetail.innerHTML = `
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">${currentPerson.name}</h2>
+                        <p class="text-gray-600">${currentPerson.idNumber}</p>
+                        ${currentPerson.remark ? `<p class="text-gray-500 mt-1">备注: ${currentPerson.remark}</p>` : ''}
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="editPerson('${currentPerson.id}')" class="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                        <button onclick="deletePerson('${currentPerson.id}')" class="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">证件列表</h3>
+                        <button onclick="openDocumentModal()" class="bg-primary text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                            <i class="fa fa-plus mr-1"></i> 添加证件
+                        </button>
+                    </div>
+                    <div id="documentList" class="space-y-4">
+                        ${currentPerson.documents.length > 0 ? currentPerson.documents.map(doc => `
+                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="font-medium">${doc.docName}</div>
+                                        <div class="text-gray-600">${doc.docNumber}</div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        ${doc.docImage ? `
+                                            <div class="w-12 h-12 rounded-lg overflow-hidden">
+                                                <img src="${doc.docImage}" alt="${doc.docName}" class="w-full h-full object-cover">
+                                            </div>
+                                        ` : ''}
+                                        <button onclick="editDocument('${doc.docId}')" class="px-2 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button onclick="deleteDocument('${doc.docId}')" class="px-2 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 transition-colors">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-gray-500 text-center py-4">暂无证件</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 打开添加人员模态框
+        function openPersonModal(personId = null) {
+            if (personId) {
+                const person = persons.find(p => p.id === personId);
+                if (person) {
+                    document.getElementById('personId').value = person.id;
+                    document.getElementById('personName').value = person.name;
+                    document.getElementById('personIdNumber').value = person.idNumber;
+                    document.getElementById('personRemark').value = person.remark || '';
+                    document.getElementById('personModalTitle').textContent = '编辑人员';
+                }
+            } else {
+                document.getElementById('personForm').reset();
+                document.getElementById('personId').value = '';
+                document.getElementById('personModalTitle').textContent = '添加人员';
+            }
+            document.getElementById('personModal').classList.remove('hidden');
+        }
+
+        // 关闭人员模态框
+        function closePersonModal() {
+            document.getElementById('personModal').classList.add('hidden');
+        }
+
+        // 保存人员
+        function savePerson() {
+            const id = document.getElementById('personId').value;
+            const name = document.getElementById('personName').value;
+            const idNumber = document.getElementById('personIdNumber').value;
+            const remark = document.getElementById('personRemark').value;
+
+            // 验证身份证号唯一性
+            const existingPerson = persons.find(p => p.idNumber === idNumber && p.id !== id);
+            if (existingPerson) {
+                alert('身份证号已存在');
+                return;
+            }
+
+            if (id) {
+                // 编辑现有人员
+                const index = persons.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    persons[index] = {
+                        ...persons[index],
+                        name,
+                        idNumber,
+                        remark
+                    };
+                }
+            } else {
+                // 添加新人员
+                const newPerson = {
+                    id: Date.now().toString(),
+                    name,
+                    idNumber,
+                    remark,
+                    documents: []
+                };
+                persons.push(newPerson);
+            }
+
+            saveData();
+            renderPersonList();
+            closePersonModal();
+
+            // 如果是新添加的人员，自动选择
+            if (!id) {
+                selectPerson(persons[persons.length - 1].id);
+            } else if (currentPerson && currentPerson.id === id) {
+                // 如果编辑的是当前选中的人员，更新详情
+                selectPerson(id);
+            }
+        }
+
+        // 编辑人员
+        function editPerson(personId) {
+            openPersonModal(personId);
+        }
+
+        // 删除人员
+        function deletePerson(personId) {
+            if (confirm('确定要删除该人员及其所有证件吗？')) {
+                persons = persons.filter(p => p.id !== personId);
+                saveData();
+                renderPersonList();
+                
+                if (currentPerson && currentPerson.id === personId) {
+                    currentPerson = null;
+                    document.getElementById('personDetail').classList.add('hidden');
+                    document.getElementById('noSelection').classList.remove('hidden');
+                }
+            }
+        }
+
+        // 打开添加证件模态框
+        function openDocumentModal(docId = null) {
+            if (!currentPerson) return;
+
+            if (docId) {
+                const doc = currentPerson.documents.find(d => d.docId === docId);
+                if (doc) {
+                    document.getElementById('documentId').value = doc.docId;
+                    document.getElementById('documentName').value = doc.docName;
+                    document.getElementById('documentNumber').value = doc.docNumber;
+                    document.getElementById('currentPersonId').value = currentPerson.id;
+                    document.getElementById('documentModalTitle').textContent = '编辑证件';
+                    
+                    // 处理图片预览
+                    if (doc.docImage) {
+                        document.getElementById('previewImg').src = doc.docImage;
+                        document.getElementById('imagePreview').classList.remove('hidden');
+                        document.getElementById('removeImageBtn').classList.remove('hidden');
+                    } else {
+                        document.getElementById('imagePreview').classList.add('hidden');
+                        document.getElementById('removeImageBtn').classList.add('hidden');
+                    }
+                }
+            } else {
+                document.getElementById('documentForm').reset();
+                document.getElementById('documentId').value = '';
+                document.getElementById('currentPersonId').value = currentPerson.id;
+                document.getElementById('documentModalTitle').textContent = '添加证件';
+                document.getElementById('imagePreview').classList.add('hidden');
+                document.getElementById('removeImageBtn').classList.add('hidden');
+            }
+            document.getElementById('documentModal').classList.remove('hidden');
+        }
+
+        // 关闭证件模态框
+        function closeDocumentModal() {
+            document.getElementById('documentModal').classList.add('hidden');
+        }
+
+        // 预览图片
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                    document.getElementById('removeImageBtn').classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // 保存证件
+        function saveDocument() {
+            const docId = document.getElementById('documentId').value;
+            const personId = document.getElementById('currentPersonId').value;
+            const docName = document.getElementById('documentName').value;
+            const docNumber = document.getElementById('documentNumber').value;
+            const fileInput = document.getElementById('documentImage');
+            
+            let docImage = null;
+            if (fileInput.files && fileInput.files[0]) {
+                // 这里应该使用FileReader读取文件，但由于我们在预览时已经读取了，所以可以直接使用预览的src
+                docImage = document.getElementById('previewImg').src;
+            }
+
+            const personIndex = persons.findIndex(p => p.id === personId);
+            if (personIndex !== -1) {
+                if (docId) {
+                    // 编辑现有证件
+                    const docIndex = persons[personIndex].documents.findIndex(d => d.docId === docId);
+                    if (docIndex !== -1) {
+                        persons[personIndex].documents[docIndex] = {
+                            ...persons[personIndex].documents[docIndex],
+                            docName,
+                            docNumber,
+                            docImage
+                        };
+                    }
+                } else {
+                    // 添加新证件
+                    const newDocument = {
+                        docId: Date.now().toString(),
+                        docName,
+                        docNumber,
+                        docImage
+                    };
+                    persons[personIndex].documents.push(newDocument);
+                }
+
+                saveData();
+                selectPerson(personId);
+                closeDocumentModal();
+            }
+        }
+
+        // 编辑证件
+        function editDocument(docId) {
+            openDocumentModal(docId);
+        }
+
+        // 删除证件
+        function deleteDocument(docId) {
+            if (confirm('确定要删除该证件吗？')) {
+                if (currentPerson) {
+                    currentPerson.documents = currentPerson.documents.filter(d => d.docId !== docId);
+                    const personIndex = persons.findIndex(p => p.id === currentPerson.id);
+                    if (personIndex !== -1) {
+                        persons[personIndex] = currentPerson;
+                    }
+                    saveData();
+                    selectPerson(currentPerson.id);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

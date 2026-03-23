@@ -11,35 +11,33 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#06b6d4',
-                        secondary: '#8b5cf6',
-                        dark: '#0f172a',
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        dark: '#1e293b',
                         light: '#f8fafc',
                         accent: '#10b981',
                         warning: '#f59e0b',
                         danger: '#ef4444',
-                        darkBlue: '#1e40af',
-                        lightBlue: '#3b82f6'
+                        lightBlue: '#dbeafe',
+                        lightGray: '#f1f5f9'
                     },
                     boxShadow: {
-                        'glass': '0 8px 32px 0 rgba(6, 182, 212, 0.37)',
-                        'glass-dark': '0 8px 32px 0 rgba(15, 23, 42, 0.5)',
-                        'neon': '0 0 5px #06b6d4, 0 0 20px #06b6d4',
-                        'neon-purple': '0 0 5px #8b5cf6, 0 0 20px #8b5cf6'
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                     },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'float': 'float 6s ease-in-out infinite',
-                        'glow': 'glow 2s ease-in-out infinite alternate'
+                        'scroll': 'scroll 10s linear infinite'
                     },
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-10px)' }
                         },
-                        glow: {
-                            '0%': { boxShadow: '0 0 5px #06b6d4, 0 0 10px #06b6d4' },
-                            '100%': { boxShadow: '0 0 10px #06b6d4, 0 0 20px #06b6d4, 0 0 30px #06b6d4' }
+                        scroll: {
+                            '0%': { transform: 'translateX(100%)' },
+                            '100%': { transform: 'translateX(-100%)' }
                         }
                     }
                 },
@@ -49,42 +47,28 @@
     <style type="text/tailwindcss">
         @layer utilities {
             .glass {
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 0.8);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 transition: all 0.3s ease;
             }
             .glass:hover {
-                background: rgba(255, 255, 255, 0.15);
-                box-shadow: 0 8px 32px 0 rgba(6, 182, 212, 0.4);
+                background: rgba(255, 255, 255, 0.9);
+                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
             }
-            .glass-dark {
-                background: rgba(15, 23, 42, 0.8);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                transition: all 0.3s ease;
-            }
-            .glass-dark:hover {
-                background: rgba(15, 23, 42, 0.9);
-                box-shadow: 0 8px 32px 0 rgba(6, 182, 212, 0.3);
-            }
-            .gradient-bg {
-                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            }
-            .gradient-text {
-                background: linear-gradient(90deg, #06b6d4, #8b5cf6);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
+            .bg-image {
+                background-image: url('https://i.imgur.com/2Q7fZ3z.jpg');
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
             }
             .card-hover {
                 transition: all 0.3s ease;
             }
             .card-hover:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.4);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             }
             .btn-primary {
                 position: relative;
@@ -108,35 +92,43 @@
                 transition: all 0.3s ease;
             }
             .input-focus:focus {
-                box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.3);
-                border-color: #06b6d4;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+                border-color: #3b82f6;
+            }
+            .scroll-text {
+                animation: scroll 10s linear infinite;
+                white-space: nowrap;
             }
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen text-white">
+<body class="bg-image min-h-screen text-gray-800">
     <div class="container mx-auto px-4 py-8">
-        <!-- 顶部搜索栏和添加按钮 -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold gradient-text mb-2 animate-pulse-slow">建筑公司人员证件</h1>
-                <p class="text-red-400 font-medium mb-2 flex items-center">
-                    <i class="fa fa-shield mr-2"></i> 内部资料，仅限建筑公司市场部使用，违规传输追究法律责任
-                </p>
-                <div class="flex items-center gap-4 mb-2">
-                    <p id="currentDateTime" class="text-blue-200 text-sm font-medium"></p>
-                    <button id="downloadReportBtn" class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center text-sm btn-primary">
-                        <i class="fa fa-download mr-1"></i> 下载报表
-                    </button>
+        <!-- 顶部标题和安全提示 -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">建筑公司人员证件</h1>
+            <div class="overflow-hidden bg-red-50 border border-red-200 rounded-lg py-2 mb-4">
+                <div class="scroll-text text-red-600 text-sm">
+                    内部资料，仅限建筑公司市场部使用，违规传输追究法律责任
                 </div>
+            </div>
+        </div>
+        
+        <!-- 搜索栏、日期和添加按钮 -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 glass rounded-xl p-4">
+            <div class="flex items-center gap-4 mb-4 md:mb-0">
+                <p id="currentDateTime" class="text-gray-600 text-sm font-medium"></p>
+                <button id="downloadReportBtn" class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center text-sm btn-primary">
+                    <i class="fa fa-download mr-1"></i> 下载报表
+                </button>
             </div>
             <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
                 <div class="relative w-full sm:w-64">
                     <input type="text" id="searchInput" placeholder="搜索人员或证件..." 
-                        class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 input-focus">
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus">
                     <i class="fa fa-search absolute right-3 top-3 text-gray-400"></i>
                 </div>
-                <button id="addPersonBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-cyan-600 transition-colors flex items-center justify-center btn-primary">
+                <button id="addPersonBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center btn-primary">
                     <i class="fa fa-plus mr-2"></i> 添加人员
                 </button>
             </div>
@@ -146,13 +138,13 @@
         <div class="flex flex-col lg:flex-row gap-6">
             <!-- 左侧人员列表 -->
             <div class="lg:w-1/3">
-                <div class="glass-dark rounded-xl p-4 shadow-glass-dark border border-cyan-800/30">
-                    <h2 class="text-xl font-semibold gradient-text mb-4 flex items-center">
-                        <i class="fa fa-users mr-2"></i> 人员列表
+                <div class="glass rounded-xl p-4 shadow-card">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-users mr-2 text-primary"></i> 人员列表
                     </h2>
                     <div class="mb-4">
-                        <label for="companyFilter" class="block text-sm font-medium text-blue-200 mb-1">筛选公司</label>
-                        <select id="companyFilter" class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white input-focus">
+                        <label for="companyFilter" class="block text-sm font-medium text-gray-700 mb-1">筛选公司</label>
+                        <select id="companyFilter" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus">
                             <option value="">全部公司</option>
                             <option value="二冶集团（雄安）建筑科技有限公司">二冶集团（雄安）建筑科技有限公司</option>
                             <option value="中国二冶集团有限公司">中国二冶集团有限公司</option>
@@ -166,62 +158,91 @@
 
             <!-- 右侧人员详情和证件管理 -->
             <div class="lg:w-2/3">
-                <div id="personDetail" class="glass-dark rounded-xl p-6 shadow-glass-dark border border-cyan-800/30 hidden">
+                <div id="personDetail" class="glass rounded-xl p-6 shadow-card hidden">
                     <!-- 人员详情将通过JS动态生成 -->
                 </div>
-                <div id="noSelection" class="glass-dark rounded-xl p-12 shadow-glass-dark border border-cyan-800/30 flex flex-col items-center justify-center">
-                    <i class="fa fa-user-circle text-5xl text-cyan-400 mb-4 animate-float"></i>
-                    <p class="text-blue-200 text-lg">请从左侧选择一个人员查看详情</p>
+                <div id="noSelection" class="glass rounded-xl p-12 shadow-card flex flex-col items-center justify-center">
+                    <i class="fa fa-user-circle text-5xl text-primary mb-4 animate-float"></i>
+                    <p class="text-gray-600 text-lg">请从左侧选择一个人员查看详情</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 添加/编辑人员模态框 -->
-    <div id="personModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
-        <div class="glass-dark rounded-xl p-6 w-full max-w-md border border-cyan-800/30 shadow-glass-dark">
+    <div id="personModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glass rounded-xl p-6 w-full max-w-md shadow-card">
             <div class="flex justify-between items-center mb-4">
-                <h3 id="personModalTitle" class="text-xl font-semibold gradient-text">添加人员</h3>
-                <button id="closePersonModal" class="text-blue-200 hover:text-white transition-colors">
+                <h3 id="personModalTitle" class="text-xl font-semibold text-gray-800">添加人员</h3>
+                <button id="closePersonModal" class="text-gray-500 hover:text-gray-700 transition-colors">
                     <i class="fa fa-times text-xl"></i>
                 </button>
             </div>
             <form id="personForm">
                 <input type="hidden" id="personId">
                 <div class="mb-4">
-                    <label for="personName" class="block text-sm font-medium text-blue-200 mb-1">姓名 *</label>
-                    <input type="text" id="personName" class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white input-focus" required>
+                    <label for="personName" class="block text-sm font-medium text-gray-700 mb-1">姓名 *</label>
+                    <input type="text" id="personName" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus" required>
                 </div>
                 <div class="mb-4">
-                    <label for="personIdNumber" class="block text-sm font-medium text-blue-200 mb-1">身份证号 *</label>
-                    <input type="text" id="personIdNumber" class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white input-focus" required>
+                    <label for="personIdNumber" class="block text-sm font-medium text-gray-700 mb-1">身份证号 *</label>
+                    <input type="text" id="personIdNumber" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus" required>
                 </div>
                 <div class="mb-4">
-                    <label for="personCompany" class="block text-sm font-medium text-blue-200 mb-1">所属公司</label>
-                    <select id="personCompany" class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white input-focus" required>
+                    <label for="personCompany" class="block text-sm font-medium text-gray-700 mb-1">所属公司</label>
+                    <select id="personCompany" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus" required>
                         <option value="">请选择</option>
                         <option value="二冶集团（雄安）建筑科技有限公司">二冶集团（雄安）建筑科技有限公司</option>
                         <option value="中国二冶集团有限公司">中国二冶集团有限公司</option>
                     </select>
                 </div>
+                <div class="mb-4">
+                    <label for="personHasPerformance" class="block text-sm font-medium text-gray-700 mb-1">本人是否有业绩</label>
+                    <select id="personHasPerformance" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus">
+                        <option value="">请选择</option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </div>
+                <div id="performanceSection" class="mb-4 hidden">
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">业绩信息</h4>
+                        <div class="mb-3">
+                            <label for="projectName" class="block text-sm font-medium text-gray-700 mb-1">项目名称</label>
+                            <input type="text" id="projectName" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus">
+                        </div>
+                        <div class="mb-3">
+                            <label for="isCompleted" class="block text-sm font-medium text-gray-700 mb-1">是否竣工</label>
+                            <select id="isCompleted" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus">
+                                <option value="">请选择</option>
+                                <option value="yes">是</option>
+                                <option value="no">否</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="position" class="block text-sm font-medium text-gray-700 mb-1">本项目担任职位</label>
+                            <input type="text" id="position" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus">
+                        </div>
+                    </div>
+                </div>
                 <div class="mb-6">
-                    <label for="personRemark" class="block text-sm font-medium text-blue-200 mb-1">备注</label>
-                    <textarea id="personRemark" rows="2" class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white input-focus"></textarea>
+                    <label for="personRemark" class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                    <textarea id="personRemark" rows="2" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus"></textarea>
                 </div>
                 <div class="flex justify-end gap-3">
-                    <button type="button" id="cancelPersonBtn" class="px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white hover:bg-gray-700 transition-colors">取消</button>
-                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-cyan-600 transition-colors btn-primary">保存</button>
+                    <button type="button" id="cancelPersonBtn" class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">取消</button>
+                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors btn-primary">保存</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- 添加/编辑证件模态框 -->
-    <div id="documentModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
-        <div class="glass-dark rounded-xl p-6 w-full max-w-md border border-cyan-800/30 shadow-glass-dark">
+    <div id="documentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glass rounded-xl p-6 w-full max-w-md shadow-card">
             <div class="flex justify-between items-center mb-4">
-                <h3 id="documentModalTitle" class="text-xl font-semibold gradient-text">添加证件</h3>
-                <button id="closeDocumentModal" class="text-blue-200 hover:text-white transition-colors">
+                <h3 id="documentModalTitle" class="text-xl font-semibold text-gray-800">添加证件</h3>
+                <button id="closeDocumentModal" class="text-gray-500 hover:text-gray-700 transition-colors">
                     <i class="fa fa-times text-xl"></i>
                 </button>
             </div>
@@ -229,8 +250,11 @@
                 <input type="hidden" id="documentId">
                 <input type="hidden" id="currentPersonId">
                 <div class="mb-4">
-                    <label for="documentName" class="block text-sm font-medium text-blue-200 mb-1">证件名称 *</label>
-                    <select id="documentName" class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white input-focus" required>
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="documentName" class="block text-sm font-medium text-gray-700">证件名称 *</label>
+                        <button type="button" id="addDocumentTypeBtn" class="text-sm text-primary hover:underline">添加证件类型</button>
+                    </div>
+                    <select id="documentName" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus" required>
                         <option value="">请选择证件类型</option>
                         <option value="身份证">身份证</option>
                         <option value="毕业证">毕业证</option>
@@ -254,59 +278,59 @@
                 </div>
                 <div id="professionalField" class="mb-4 hidden">
                     <div class="flex justify-between items-center mb-1">
-                        <label for="documentProfessional" class="block text-sm font-medium text-blue-200">专业</label>
-                        <button type="button" id="addProfessionalBtn" class="text-sm text-cyan-400 hover:text-cyan-300 transition-colors">添加专业</button>
+                        <label for="documentProfessional" class="block text-sm font-medium text-gray-700">专业</label>
+                        <button type="button" id="addProfessionalBtn" class="text-sm text-primary hover:underline">添加专业</button>
                     </div>
-                    <select id="documentProfessional" class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white input-focus">
+                    <select id="documentProfessional" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus">
                         <option value="">请选择专业</option>
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label for="documentNumber" class="block text-sm font-medium text-blue-200 mb-1">证件号码 *</label>
-                    <input type="text" id="documentNumber" class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white input-focus" required>
+                    <label for="documentNumber" class="block text-sm font-medium text-gray-700 mb-1">证件号码 *</label>
+                    <input type="text" id="documentNumber" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus" required>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-blue-200 mb-1">有效期</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">有效期</label>
                     <div class="flex gap-2">
                         <div class="flex-1">
-                            <input type="date" id="documentExpiryStart" class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white input-focus">
+                            <input type="date" id="documentExpiryStart" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus">
                         </div>
-                        <span class="flex items-center text-blue-200">至</span>
+                        <span class="flex items-center text-gray-600">至</span>
                         <div class="flex-1">
-                            <input type="date" id="documentExpiryEnd" class="w-full px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white input-focus">
+                            <input type="date" id="documentExpiryEnd" class="w-full px-4 py-2 rounded-lg border border-gray-300 input-focus">
                         </div>
                     </div>
                 </div>
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-blue-200 mb-1">证件附件</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">证件附件</label>
                     <div class="flex items-center gap-4">
                         <input type="file" id="documentImage" accept="image/*" class="hidden" onchange="previewImage(this)">
-                        <label for="documentImage" class="px-4 py-2 border border-gray-700 bg-gray-800 text-white rounded-lg cursor-pointer hover:bg-gray-700 transition-colors">
+                        <label for="documentImage" class="px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
                             <i class="fa fa-upload mr-2"></i> 选择图片
                         </label>
                         <div id="imagePreview" class="hidden">
-                            <img id="previewImg" src="" alt="预览" class="w-16 h-16 object-cover rounded-lg border border-cyan-800/50">
+                            <img id="previewImg" src="" alt="预览" class="w-16 h-16 object-cover rounded-lg border border-primary/30">
                         </div>
-                        <button type="button" id="removeImageBtn" class="text-red-400 hover:text-red-300 transition-colors hidden">
+                        <button type="button" id="removeImageBtn" class="text-red-500 hover:text-red-700 transition-colors hidden">
                             <i class="fa fa-trash"></i>
                         </button>
                     </div>
                 </div>
                 <div class="flex justify-end gap-3">
-                    <button type="button" id="cancelDocumentBtn" class="px-4 py-2 rounded-lg border border-gray-700 bg-gray-800 text-white hover:bg-gray-700 transition-colors">取消</button>
-                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-cyan-600 transition-colors btn-primary">保存</button>
+                    <button type="button" id="cancelDocumentBtn" class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">取消</button>
+                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors btn-primary">保存</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- 图片预览模态框 -->
-    <div id="imagePreviewModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
-        <div class="relative max-w-4xl max-h-[90vh] border border-cyan-800/30 rounded-xl p-4 glass-dark">
-            <button id="closeImagePreview" class="absolute top-4 right-4 text-cyan-400 text-2xl hover:text-white transition-colors">
+    <div id="imagePreviewModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="relative max-w-4xl max-h-[90vh] border border-gray-200 rounded-xl p-4 glass">
+            <button id="closeImagePreview" class="absolute top-4 right-4 text-gray-500 text-2xl hover:text-gray-700 transition-colors">
                 <i class="fa fa-times"></i>
             </button>
-            <img id="previewModalImg" src="" alt="预览" class="max-w-full max-h-[80vh] object-contain rounded-lg border border-cyan-800/50">
+            <img id="previewModalImg" src="" alt="预览" class="max-w-full max-h-[80vh] object-contain rounded-lg border border-gray-200">
         </div>
     </div>
 
@@ -316,6 +340,11 @@
         let currentPerson = null;
         let searchQuery = '';
         let professionals = [];
+        let documentTypes = [
+            '身份证', '毕业证', '职称证', '一级注册建造师证', '二级注册建造师', '一级造价师', 
+            '安全B类', '安全C类', '施工员', '质量员', '材料员', '劳务员', '资料员', 
+            '标准员', '机械员', '预算员', '试验员', '测量员'
+        ];
 
         // 更新当前日期时间
         function updateDateTime() {
@@ -352,6 +381,11 @@
             if (storedProfessionals) {
                 professionals = JSON.parse(storedProfessionals);
             }
+            
+            const storedDocumentTypes = localStorage.getItem('documentTypes');
+            if (storedDocumentTypes) {
+                documentTypes = JSON.parse(storedDocumentTypes);
+            }
         }
 
         // 保存数据
@@ -364,19 +398,51 @@
             localStorage.setItem('professionals', JSON.stringify(professionals));
         }
 
+        // 保存证件类型数据
+        function saveDocumentTypes() {
+            localStorage.setItem('documentTypes', JSON.stringify(documentTypes));
+        }
+
         // 切换专业字段显示
         function toggleProfessionalField() {
             const docName = document.getElementById('documentName').value;
             const professionalField = document.getElementById('professionalField');
             
             // 需要专业字段的证件类型
-            const needProfessional = ['一级注册建造师证', '二级注册建造师', '一级造价师'];
+            const needProfessional = ['一级注册建造师证', '二级注册建造师', '一级造价师', '安全B类', '安全C类'];
             
             if (needProfessional.includes(docName)) {
                 professionalField.classList.remove('hidden');
                 renderProfessionalOptions();
             } else {
                 professionalField.classList.add('hidden');
+            }
+        }
+
+        // 渲染证件类型选项
+        function renderDocumentTypeOptions() {
+            const select = document.getElementById('documentName');
+            select.innerHTML = '<option value="">请选择证件类型</option>';
+            
+            documentTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                select.appendChild(option);
+            });
+        }
+
+        // 添加证件类型
+        function addDocumentType() {
+            const type = prompt('请输入证件类型名称：');
+            if (type && type.trim()) {
+                if (!documentTypes.includes(type.trim())) {
+                    documentTypes.push(type.trim());
+                    saveDocumentTypes();
+                    renderDocumentTypeOptions();
+                } else {
+                    alert('该证件类型已存在');
+                }
             }
         }
 
@@ -428,6 +494,16 @@
                 savePerson();
             });
 
+            // 业绩选项卡事件
+            document.getElementById('personHasPerformance').addEventListener('change', function() {
+                const performanceSection = document.getElementById('performanceSection');
+                if (this.value === 'yes') {
+                    performanceSection.classList.remove('hidden');
+                } else {
+                    performanceSection.classList.add('hidden');
+                }
+            });
+
             // 证件模态框
             document.getElementById('closeDocumentModal').addEventListener('click', closeDocumentModal);
             document.getElementById('cancelDocumentBtn').addEventListener('click', closeDocumentModal);
@@ -461,6 +537,11 @@
             // 添加专业按钮
             document.getElementById('addProfessionalBtn').addEventListener('click', function() {
                 addProfessional();
+            });
+
+            // 添加证件类型按钮
+            document.getElementById('addDocumentTypeBtn').addEventListener('click', function() {
+                addDocumentType();
             });
 
             // 下载报表按钮
@@ -499,17 +580,17 @@
             });
 
             if (filteredPersons.length === 0) {
-                personList.innerHTML = '<p class="text-blue-300 text-center py-4">暂无人员</p>';
+                personList.innerHTML = '<p class="text-gray-500 text-center py-4">暂无人员</p>';
                 return;
             }
 
             filteredPersons.forEach(person => {
                 const personCard = document.createElement('div');
-                personCard.className = `p-4 rounded-lg cursor-pointer transition-all card-hover ${currentPerson && currentPerson.id === person.id ? 'bg-primary text-white border border-cyan-400' : 'bg-gray-800 hover:bg-gray-700 border border-gray-700'}`;
+                personCard.className = `p-4 rounded-lg cursor-pointer transition-all card-hover ${currentPerson && currentPerson.id === person.id ? 'bg-primary text-white border border-blue-300' : 'bg-white hover:bg-gray-50 border border-gray-200'}`;
                 personCard.innerHTML = `
-                    <div class="font-medium text-blue-200">${person.name}</div>
-                    <div class="text-sm ${currentPerson && currentPerson.id === person.id ? 'text-white/80' : 'text-blue-300'}">${person.company || '未设置'}</div>
-                    <div class="text-xs mt-1 ${currentPerson && currentPerson.id === person.id ? 'text-white/60' : 'text-blue-400'}">证件数: ${person.documents.length}</div>
+                    <div class="font-medium text-gray-800">${person.name}</div>
+                    <div class="text-sm ${currentPerson && currentPerson.id === person.id ? 'text-white/80' : 'text-gray-600'}">${person.company || '未设置'}</div>
+                    <div class="text-xs mt-1 ${currentPerson && currentPerson.id === person.id ? 'text-white/60' : 'text-gray-500'}">证件数: ${person.documents.length}</div>
                 `;
                 personCard.addEventListener('click', function() {
                     selectPerson(person.id);
@@ -532,72 +613,140 @@
         // 渲染人员详情
         function renderPersonDetail() {
             const personDetail = document.getElementById('personDetail');
+            
+            // 检查过期证件
+            const expiredDocuments = checkExpiredDocuments();
+            
             personDetail.innerHTML = `
                 <div class="flex justify-between items-start mb-6">
                     <div>
-                        <h2 class="text-2xl font-bold gradient-text">${currentPerson.name}</h2>
-                        <p class="text-blue-300">${currentPerson.idNumber}</p>
-                        ${currentPerson.company ? `<p class="text-blue-400 mt-1">所属公司: ${currentPerson.company}</p>` : ''}
-                        ${currentPerson.remark ? `<p class="text-blue-400 mt-1">备注: ${currentPerson.remark}</p>` : ''}
+                        <h2 class="text-2xl font-bold text-gray-800">${currentPerson.name}</h2>
+                        <p class="text-gray-600">${currentPerson.idNumber}</p>
+                        ${currentPerson.company ? `<p class="text-gray-500 mt-1">所属公司: ${currentPerson.company}</p>` : ''}
+                        ${currentPerson.remark ? `<p class="text-gray-500 mt-1">备注: ${currentPerson.remark}</p>` : ''}
+                        ${currentPerson.hasPerformance === 'yes' ? `
+                            <div class="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                <p class="text-sm font-medium text-gray-700">业绩信息</p>
+                                ${currentPerson.projectName ? `<p class="text-sm text-gray-600">项目名称: ${currentPerson.projectName}</p>` : ''}
+                                ${currentPerson.isCompleted ? `<p class="text-sm text-gray-600">是否竣工: ${currentPerson.isCompleted === 'yes' ? '是' : '否'}</p>` : ''}
+                                ${currentPerson.position ? `<p class="text-sm text-gray-600">担任职位: ${currentPerson.position}</p>` : ''}
+                            </div>
+                        ` : ''}
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="editPerson('${currentPerson.id}')" class="px-3 py-1 rounded-lg bg-blue-900/50 text-cyan-400 hover:bg-blue-800/50 transition-colors border border-cyan-800/30">
+                        ${expiredDocuments.length > 0 ? `
+                            <div class="relative">
+                                <button id="expiredAlertBtn" class="px-3 py-1 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-colors border border-yellow-300">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">${expiredDocuments.length}</span>
+                            </div>
+                        ` : ''}
+                        <button onclick="editPerson('${currentPerson.id}')" class="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors border border-blue-300">
                             <i class="fa fa-edit"></i>
                         </button>
-                        <button onclick="deletePerson('${currentPerson.id}')" class="px-3 py-1 rounded-lg bg-red-900/50 text-red-400 hover:bg-red-800/50 transition-colors border border-red-800/30">
+                        <button onclick="deletePerson('${currentPerson.id}')" class="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors border border-red-300">
                             <i class="fa fa-trash"></i>
                         </button>
                     </div>
                 </div>
 
+                <!-- 过期证件提示 -->
+                ${expiredDocuments.length > 0 ? `
+                    <div id="expiredAlertModal" class="hidden mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <h4 class="font-medium text-yellow-800 mb-2">过期证件提醒</h4>
+                        <ul class="space-y-2">
+                            ${expiredDocuments.map(doc => `
+                                <li class="text-sm text-yellow-700">${doc.name}的${doc.docName}已过期</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
                 <div class="mb-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold gradient-text flex items-center">
-                            <i class="fa fa-id-card mr-2"></i> 证件列表
+                        <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+                            <i class="fa fa-id-card mr-2 text-primary"></i> 证件列表
                         </h3>
-                        <button onclick="openDocumentModal()" class="bg-primary text-white px-3 py-1 rounded-lg hover:bg-cyan-600 transition-colors flex items-center btn-primary">
+                        <button onclick="openDocumentModal()" class="bg-primary text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition-colors flex items-center btn-primary">
                             <i class="fa fa-plus mr-1"></i> 添加证件
                         </button>
                     </div>
                     <div id="documentList" class="space-y-4">
                         ${currentPerson.documents.length > 0 ? currentPerson.documents.map(doc => `
-                            <div class="bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-700 card-hover">
+                            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200 card-hover">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <div class="font-medium text-blue-200">${doc.docName}</div>
-                                        ${doc.professional ? `<div class="text-blue-400 text-sm">专业: ${doc.professional}</div>` : ''}
-                                        <div class="text-blue-300">${doc.docNumber}</div>
-                                        ${doc.expiry ? `<div class="text-blue-400 text-sm mt-1">有效期: ${doc.expiry}</div>` : ''}
+                                        <div class="font-medium text-gray-800">${doc.docName}</div>
+                                        ${doc.professional ? `<div class="text-gray-600 text-sm">专业: ${doc.professional}</div>` : ''}
+                                        <div class="text-gray-700">${doc.docNumber}</div>
+                                        ${doc.expiry ? `<div class="text-gray-600 text-sm mt-1">有效期: ${doc.expiry}</div>` : ''}
+                                        ${isDocumentExpired(doc) ? `<div class="text-red-500 text-sm mt-1 font-medium">已过期</div>` : ''}
                                     </div>
                                     <div class="flex gap-2">
                                         ${doc.docImage ? `
-                                            <div class="w-12 h-12 rounded-lg overflow-hidden border border-cyan-800/50">
+                                            <div class="w-12 h-12 rounded-lg overflow-hidden border border-primary/30">
                                                 <img src="${doc.docImage}" alt="${doc.docName}" class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity">
                                             </div>
                                         ` : ''}
-                                        <button onclick="editDocument('${doc.docId}')" class="px-2 py-1 rounded bg-blue-900/50 text-cyan-400 hover:bg-blue-800/50 transition-colors border border-cyan-800/30">
+                                        <button onclick="editDocument('${doc.docId}')" class="px-2 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors border border-blue-300">
                                             <i class="fa fa-edit"></i>
                                         </button>
                                         ${doc.docImage ? `
-                                            <button onclick="previewDocumentImage('${doc.docId}')" class="px-2 py-1 rounded bg-purple-900/50 text-purple-400 hover:bg-purple-800/50 transition-colors border border-purple-800/30">
+                                            <button onclick="previewDocumentImage('${doc.docId}')" class="px-2 py-1 rounded bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors border border-purple-300">
                                                 <i class="fa fa-eye"></i>
                                             </button>
                                         ` : ''}
                                         ${doc.docImage ? `
-                                            <button onclick="downloadDocument('${doc.docId}')" class="px-2 py-1 rounded bg-green-900/50 text-green-400 hover:bg-green-800/50 transition-colors border border-green-800/30">
+                                            <button onclick="downloadDocument('${doc.docId}')" class="px-2 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200 transition-colors border border-green-300">
                                                 <i class="fa fa-download"></i>
                                             </button>
                                         ` : ''}
-                                        <button onclick="deleteDocument('${doc.docId}')" class="px-2 py-1 rounded bg-red-900/50 text-red-400 hover:bg-red-800/50 transition-colors border border-red-800/30">
+                                        <button onclick="deleteDocument('${doc.docId}')" class="px-2 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 transition-colors border border-red-300">
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                        `).join('') : '<p class="text-blue-300 text-center py-4">暂无证件</p>'}
+                        `).join('') : '<p class="text-gray-500 text-center py-4">暂无证件</p>'}
                     </div>
                 </div>
             `;
+            
+            // 绑定过期证件提示按钮事件
+            if (expiredDocuments.length > 0) {
+                document.getElementById('expiredAlertBtn').addEventListener('click', function() {
+                    const modal = document.getElementById('expiredAlertModal');
+                    modal.classList.toggle('hidden');
+                });
+            }
+        }
+
+        // 检查证件是否过期
+        function isDocumentExpired(doc) {
+            if (!doc.expiryEnd) return false;
+            
+            const now = new Date();
+            const expiryEnd = new Date(doc.expiryEnd);
+            return now > expiryEnd;
+        }
+
+        // 检查所有过期证件
+        function checkExpiredDocuments() {
+            const expired = [];
+            
+            persons.forEach(person => {
+                person.documents.forEach(doc => {
+                    if (isDocumentExpired(doc)) {
+                        expired.push({
+                            name: person.name,
+                            docName: doc.docName
+                        });
+                    }
+                });
+            });
+            
+            return expired;
         }
 
         // 打开添加人员模态框
@@ -609,13 +758,26 @@
                     document.getElementById('personName').value = person.name;
                     document.getElementById('personIdNumber').value = person.idNumber;
                     document.getElementById('personCompany').value = person.company || '';
+                    document.getElementById('personHasPerformance').value = person.hasPerformance || '';
+                    document.getElementById('projectName').value = person.projectName || '';
+                    document.getElementById('isCompleted').value = person.isCompleted || '';
+                    document.getElementById('position').value = person.position || '';
                     document.getElementById('personRemark').value = person.remark || '';
                     document.getElementById('personModalTitle').textContent = '编辑人员';
+                    
+                    // 处理业绩 section 显示
+                    const performanceSection = document.getElementById('performanceSection');
+                    if (person.hasPerformance === 'yes') {
+                        performanceSection.classList.remove('hidden');
+                    } else {
+                        performanceSection.classList.add('hidden');
+                    }
                 }
             } else {
                 document.getElementById('personForm').reset();
                 document.getElementById('personId').value = '';
                 document.getElementById('personModalTitle').textContent = '添加人员';
+                document.getElementById('performanceSection').classList.add('hidden');
             }
             document.getElementById('personModal').classList.remove('hidden');
         }
@@ -631,6 +793,10 @@
             const name = document.getElementById('personName').value;
             const idNumber = document.getElementById('personIdNumber').value;
             const company = document.getElementById('personCompany').value;
+            const hasPerformance = document.getElementById('personHasPerformance').value;
+            const projectName = document.getElementById('projectName').value;
+            const isCompleted = document.getElementById('isCompleted').value;
+            const position = document.getElementById('position').value;
             const remark = document.getElementById('personRemark').value;
 
             // 验证身份证号唯一性
@@ -649,6 +815,10 @@
                         name,
                         idNumber,
                         company,
+                        hasPerformance,
+                        projectName,
+                        isCompleted,
+                        position,
                         remark
                     };
                 }
@@ -659,6 +829,10 @@
                     name,
                     idNumber,
                     company,
+                    hasPerformance,
+                    projectName,
+                    isCompleted,
+                    position,
                     remark,
                     documents: []
                 };
@@ -701,6 +875,9 @@
         // 打开添加证件模态框
         function openDocumentModal(docId = null) {
             if (!currentPerson) return;
+
+            // 渲染证件类型选项
+            renderDocumentTypeOptions();
 
             if (docId) {
                 const doc = currentPerson.documents.find(d => d.docId === docId);

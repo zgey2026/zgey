@@ -46,7 +46,12 @@
         <div class="flex flex-col md:flex-row justify-between items-center mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800 mb-2">建筑公司人员证件</h1>
-                <p id="currentDateTime" class="text-gray-600 text-sm"></p>
+                <div class="flex items-center gap-4 mb-2">
+                    <p id="currentDateTime" class="text-gray-600 text-sm"></p>
+                    <button id="downloadReportBtn" class="bg-green-500 text-white px-4 py-1 rounded-lg hover:bg-green-600 transition-colors flex items-center text-sm">
+                        <i class="fa fa-download mr-1"></i> 下载报表
+                    </button>
+                </div>
             </div>
             <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
                 <div class="relative w-full sm:w-64">
@@ -114,7 +119,7 @@
                 </div>
                 <div class="mb-4">
                     <label for="personCompany" class="block text-sm font-medium text-gray-700 mb-1">所属公司</label>
-                    <select id="personCompany" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <select id="personCompany" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required>
                         <option value="">请选择</option>
                         <option value="二冶集团（雄安）建筑科技有限公司">二冶集团（雄安）建筑科技有限公司</option>
                         <option value="中国二冶集团有限公司">中国二冶集团有限公司</option>
@@ -377,6 +382,11 @@
             // 添加专业按钮
             document.getElementById('addProfessionalBtn').addEventListener('click', function() {
                 addProfessional();
+            });
+
+            // 下载报表按钮
+            document.getElementById('downloadReportBtn').addEventListener('click', function() {
+                downloadReport();
             });
         }
 
@@ -773,6 +783,51 @@
                     document.getElementById('imagePreviewModal').classList.remove('hidden');
                 }
             }
+        }
+
+        // 下载报表
+        function downloadReport() {
+            // 表头
+            let csvContent = "序号,姓名,所属公司,身份证号,注册证,注册证专业,职称证,职称证专业\n";
+
+            // 遍历人员
+            persons.forEach((person, index) => {
+                // 查找注册证（一级注册建造师证、二级注册建造师、一级造价师）
+                const registrationCert = person.documents.find(doc => {
+                    return ['一级注册建造师证', '二级注册建造师', '一级造价师'].includes(doc.docName);
+                });
+
+                // 查找职称证
+                const professionalTitleCert = person.documents.find(doc => doc.docName === '职称证');
+
+                // 构建行数据
+                const row = [
+                    index + 1, // 序号
+                    person.name, // 姓名
+                    person.company || '', // 所属公司
+                    person.idNumber, // 身份证号
+                    registrationCert ? registrationCert.docNumber : '', // 注册证
+                    registrationCert ? registrationCert.professional : '', // 注册证专业
+                    professionalTitleCert ? professionalTitleCert.docNumber : '', // 职称证
+                    professionalTitleCert ? professionalTitleCert.professional : '' // 职称证专业
+                ];
+
+                // 添加到CSV内容
+                csvContent += row.join(',') + '\n';
+            });
+
+            // 创建Blob对象
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            // 创建下载链接
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `人员证件报表_${new Date().toISOString().slice(0, 10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>

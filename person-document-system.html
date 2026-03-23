@@ -66,6 +66,14 @@
             <div class="lg:w-1/3">
                 <div class="glass rounded-xl p-4 shadow-glass">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">人员列表</h2>
+                    <div class="mb-4">
+                        <label for="companyFilter" class="block text-sm font-medium text-gray-700 mb-1">筛选公司</label>
+                        <select id="companyFilter" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">全部公司</option>
+                            <option value="二冶集团（雄安）建筑科技有限公司">二冶集团（雄安）建筑科技有限公司</option>
+                            <option value="中国二冶集团有限公司">中国二冶集团有限公司</option>
+                        </select>
+                    </div>
                     <div id="personList" class="space-y-3 max-h-[600px] overflow-y-auto">
                         <!-- 人员卡片将通过JS动态生成 -->
                     </div>
@@ -138,7 +146,36 @@
                 <input type="hidden" id="currentPersonId">
                 <div class="mb-4">
                     <label for="documentName" class="block text-sm font-medium text-gray-700 mb-1">证件名称 *</label>
-                    <input type="text" id="documentName" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                    <select id="documentName" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                        <option value="">请选择证件类型</option>
+                        <option value="身份证">身份证</option>
+                        <option value="毕业证">毕业证</option>
+                        <option value="职称证">职称证</option>
+                        <option value="一级注册建造师证">一级注册建造师证</option>
+                        <option value="二级注册建造师">二级注册建造师</option>
+                        <option value="一级造价师">一级造价师</option>
+                        <option value="安全B类">安全B类</option>
+                        <option value="安全C类">安全C类</option>
+                        <option value="施工员">施工员</option>
+                        <option value="质量员">质量员</option>
+                        <option value="材料员">材料员</option>
+                        <option value="劳务员">劳务员</option>
+                        <option value="资料员">资料员</option>
+                        <option value="标准员">标准员</option>
+                        <option value="机械员">机械员</option>
+                        <option value="预算员">预算员</option>
+                        <option value="试验员">试验员</option>
+                        <option value="测量员">测量员</option>
+                    </select>
+                </div>
+                <div id="professionalField" class="mb-4 hidden">
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="documentProfessional" class="block text-sm font-medium text-gray-700">专业</label>
+                        <button type="button" id="addProfessionalBtn" class="text-sm text-primary hover:underline">添加专业</button>
+                    </div>
+                    <select id="documentProfessional" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="">请选择专业</option>
+                    </select>
                 </div>
                 <div class="mb-4">
                     <label for="documentNumber" class="block text-sm font-medium text-gray-700 mb-1">证件号码 *</label>
@@ -194,6 +231,7 @@
         let persons = [];
         let currentPerson = null;
         let searchQuery = '';
+        let professionals = [];
 
         // 更新当前日期时间
         function updateDateTime() {
@@ -225,11 +263,64 @@
             if (storedPersons) {
                 persons = JSON.parse(storedPersons);
             }
+            
+            const storedProfessionals = localStorage.getItem('professionals');
+            if (storedProfessionals) {
+                professionals = JSON.parse(storedProfessionals);
+            }
         }
 
         // 保存数据
         function saveData() {
             localStorage.setItem('persons', JSON.stringify(persons));
+        }
+
+        // 保存专业数据
+        function saveProfessionals() {
+            localStorage.setItem('professionals', JSON.stringify(professionals));
+        }
+
+        // 切换专业字段显示
+        function toggleProfessionalField() {
+            const docName = document.getElementById('documentName').value;
+            const professionalField = document.getElementById('professionalField');
+            
+            // 需要专业字段的证件类型
+            const needProfessional = ['一级注册建造师证', '二级注册建造师', '一级造价师'];
+            
+            if (needProfessional.includes(docName)) {
+                professionalField.classList.remove('hidden');
+                renderProfessionalOptions();
+            } else {
+                professionalField.classList.add('hidden');
+            }
+        }
+
+        // 渲染专业选项
+        function renderProfessionalOptions() {
+            const select = document.getElementById('documentProfessional');
+            select.innerHTML = '<option value="">请选择专业</option>';
+            
+            professionals.forEach(professional => {
+                const option = document.createElement('option');
+                option.value = professional;
+                option.textContent = professional;
+                select.appendChild(option);
+            });
+        }
+
+        // 添加专业
+        function addProfessional() {
+            const professional = prompt('请输入专业名称：');
+            if (professional && professional.trim()) {
+                if (!professionals.includes(professional.trim())) {
+                    professionals.push(professional.trim());
+                    saveProfessionals();
+                    renderProfessionalOptions();
+                } else {
+                    alert('该专业已存在');
+                }
+            }
         }
 
         // 绑定事件
@@ -272,6 +363,21 @@
             document.getElementById('closeImagePreview').addEventListener('click', function() {
                 document.getElementById('imagePreviewModal').classList.add('hidden');
             });
+
+            // 公司筛选下拉框
+            document.getElementById('companyFilter').addEventListener('change', function() {
+                renderPersonList();
+            });
+
+            // 证件类型下拉框
+            document.getElementById('documentName').addEventListener('change', function() {
+                toggleProfessionalField();
+            });
+
+            // 添加专业按钮
+            document.getElementById('addProfessionalBtn').addEventListener('click', function() {
+                addProfessional();
+            });
         }
 
         // 渲染人员列表
@@ -279,7 +385,15 @@
             const personList = document.getElementById('personList');
             personList.innerHTML = '';
 
+            const companyFilter = document.getElementById('companyFilter').value;
+
             const filteredPersons = persons.filter(person => {
+                // 公司筛选
+                if (companyFilter && person.company !== companyFilter) {
+                    return false;
+                }
+
+                // 搜索筛选
                 if (!searchQuery) return true;
                 
                 // 搜索姓名和身份证号
@@ -305,7 +419,7 @@
                 personCard.className = `p-4 rounded-lg cursor-pointer transition-all ${currentPerson && currentPerson.id === person.id ? 'bg-primary text-white' : 'bg-white hover:bg-gray-50'}`;
                 personCard.innerHTML = `
                     <div class="font-medium">${person.name}</div>
-                    <div class="text-sm ${currentPerson && currentPerson.id === person.id ? 'text-white/80' : 'text-gray-500'}">${person.idNumber}</div>
+                    <div class="text-sm ${currentPerson && currentPerson.id === person.id ? 'text-white/80' : 'text-gray-500'}">${person.company || '未设置'}</div>
                     <div class="text-xs mt-1 ${currentPerson && currentPerson.id === person.id ? 'text-white/60' : 'text-gray-400'}">证件数: ${person.documents.length}</div>
                 `;
                 personCard.addEventListener('click', function() {
@@ -360,6 +474,7 @@
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <div class="font-medium">${doc.docName}</div>
+                                        ${doc.professional ? `<div class="text-gray-500 text-sm">专业: ${doc.professional}</div>` : ''}
                                         <div class="text-gray-600">${doc.docNumber}</div>
                                         ${doc.expiry ? `<div class="text-gray-500 text-sm mt-1">有效期: ${doc.expiry}</div>` : ''}
                                     </div>
@@ -502,10 +617,14 @@
                     document.getElementById('documentId').value = doc.docId;
                     document.getElementById('documentName').value = doc.docName;
                     document.getElementById('documentNumber').value = doc.docNumber;
+                    document.getElementById('documentProfessional').value = doc.professional || '';
                     document.getElementById('documentExpiryStart').value = doc.expiryStart || '';
                     document.getElementById('documentExpiryEnd').value = doc.expiryEnd || '';
                     document.getElementById('currentPersonId').value = currentPerson.id;
                     document.getElementById('documentModalTitle').textContent = '编辑证件';
+                    
+                    // 处理专业字段显示
+                    toggleProfessionalField();
                     
                     // 处理图片预览
                     if (doc.docImage) {
@@ -524,6 +643,8 @@
                 document.getElementById('documentModalTitle').textContent = '添加证件';
                 document.getElementById('imagePreview').classList.add('hidden');
                 document.getElementById('removeImageBtn').classList.add('hidden');
+                // 处理专业字段显示
+                toggleProfessionalField();
             }
             document.getElementById('documentModal').classList.remove('hidden');
         }
@@ -552,6 +673,7 @@
             const personId = document.getElementById('currentPersonId').value;
             const docName = document.getElementById('documentName').value;
             const docNumber = document.getElementById('documentNumber').value;
+            const professional = document.getElementById('documentProfessional').value;
             const expiryStart = document.getElementById('documentExpiryStart').value;
             const expiryEnd = document.getElementById('documentExpiryEnd').value;
             const fileInput = document.getElementById('documentImage');
@@ -578,6 +700,7 @@
                             ...persons[personIndex].documents[docIndex],
                             docName,
                             docNumber,
+                            professional,
                             expiry,
                             expiryStart,
                             expiryEnd,
@@ -590,6 +713,7 @@
                         docId: Date.now().toString(),
                         docName,
                         docNumber,
+                        professional,
                         expiry,
                         expiryStart,
                         expiryEnd,
